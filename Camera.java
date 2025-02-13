@@ -2,25 +2,17 @@ package drones;
 
 import org.joml.*;
 import java.lang.Math;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class Camera {
     private float cameraDistance = 20f;
-    private Vector3f lookAtPoint = new Vector3f(0, 0, 0);
+    private Vector3f lookAtPoint = new Vector3f(0, 5, 0);
     private Vector3f upVector = new Vector3f(0.0f, 1.0f, 0.0f);
     private Vector3f cameraStartDirection = new Vector3f(0, 10, 20);
     public Vector3f eyePoint;
+    
     private float near = 1f;
     private float far = 1000f;
     private float fov = 60f;
-    
-    protected static final float MOVEMENT_SPEED = 0.1f;
-    protected static final float ROTATION_SPEED = 2.0f;
-    protected static final float ACCELERATION = 100f;
-    protected static final float DECELERATION = 0.0f;
-    protected static final float MAX_SPEED = 15.0f;
-    
-    protected static float deltaTime = 0.1f;
     
     protected Vector3f velocity = new Vector3f();
     protected Vector3f rotationVelocity = new Vector3f();
@@ -35,7 +27,7 @@ public class Camera {
     }
 
     public Matrix4f getCameraMatrix() {
-
+    	deg_angles = deg_angles.add(rotationVelocity);
         float radX = (float) Math.toRadians(deg_angles.x);
         float radY = (float) Math.toRadians(deg_angles.y);
         float radZ = (float) Math.toRadians(deg_angles.z);
@@ -57,9 +49,11 @@ public class Camera {
     }
     
     public Matrix4f translate(Matrix4f viewMatrix) {
+    	origin = origin.add(velocity);
     	viewMatrix.m30(viewMatrix.m30() + origin.x);
         viewMatrix.m31(viewMatrix.m31() + origin.y);
         viewMatrix.m32(viewMatrix.m32() + origin.z);
+        
 
         return viewMatrix;
     }
@@ -77,19 +71,6 @@ public class Camera {
     public Matrix4f getPerspectiveMatrix(float aspectRatio) {
         return new Matrix4f().perspective((float) Math.toRadians(fov), aspectRatio, near, far);
     }
-    
-    public void update(float deltaTime) {
-       
-        origin.add(new Vector3f(velocity).mul(deltaTime));
-        
-        deg_angles.add(new Vector3f(rotationVelocity).mul(deltaTime));
-        
-        velocity.mul((float)Math.pow(1.0f - DECELERATION * deltaTime, deltaTime));
-        rotationVelocity.mul((float)Math.pow(1.0f - DECELERATION * deltaTime, deltaTime));
-    }
-    
-    
-    
     
     
     

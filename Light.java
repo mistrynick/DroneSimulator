@@ -6,7 +6,6 @@ import java.lang.Math;
 
 
 
-
 public class Light {
 	private float lightDistance;
     private Vector3f lightDir;
@@ -16,10 +15,10 @@ public class Light {
     
     private static final int FOV = 60;
     private static final int NEAR = 1;
-    private static final int FAR = 10000;
+    private static final int FAR = 1000000;
     
     public Light() {
-        lightDistance = 20.0f;
+        lightDistance = 1000.0f;
         lightDir = new Vector3f(-0.0001f, 1, 0.0001f);
         lightStartDirection = new Vector3f(lightDir).normalize();
         lightTarget = new Vector3f(0.0f, 0.0f, 0.0f);

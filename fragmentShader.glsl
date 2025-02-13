@@ -1,6 +1,5 @@
 #version 330 core
 
-
 in vec3 f_position;
 in vec3 f_normal;
 in vec2 f_uv;
@@ -15,7 +14,7 @@ uniform sampler2D depthMap;
 
 uniform bool metal;
 uniform bool hasTexture;
-const float shininess = 5.0;
+const float shininess = 0.6;
 
 
 layout (location = 0) out vec4 out_color;
@@ -34,9 +33,9 @@ void main() {
     vec3 fragPos3D = f_PosLightSpace.xyz / f_PosLightSpace.w;
     float depthCurrent = (fragPos3D.z+1.0)/2.0;
     vec2 shadowCoord = f_PosLightSpace.xy / f_PosLightSpace.w * 0.5 + 0.5;
-    vec2 uv = (fragPos3D.xy+1.0)/2;
+    vec2 uv = (fragPos3D.xy+1.0)/2.0;
     float depthStored = texture(depthMap, uv).r;
-    float shadowFactor = 1;
+    float shadowFactor = 1.0;
     //float bias = max(0.05 * (1.0 - dot(N, L)), 0.005);
     float bias = 0.001;
 
@@ -44,19 +43,17 @@ void main() {
     
 
     if (depthStored+bias < depthCurrent) {
-        shadowFactor = 0.2;
+        shadowFactor = 0.8;
     }
 
     if (hasTexture) {
         baseColor = texture(map, f_uv).rgb;
         vec3 texcolor  = ((metal)? pow(clamp(dot(H,N), 0., 1.), shininess):clamp(dot(N,L),0.,1.))*baseColor;
         out_color = vec4(texcolor*shadowFactor,1.);
-        //out_color = vec4(vec3(depthStored), 1.0);
         
     } else {
         out_color = vec4(color*shadowFactor,1.);
     }
-    
 
     
     

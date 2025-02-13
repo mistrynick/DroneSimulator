@@ -23,7 +23,7 @@ public class ObjectLoader {
                 if (tokens.length == 0) continue;
 
                 switch (tokens[0]) {
-                    case "v" -> { // Vertex
+                    case "v" -> { 
                         if (tokens.length >= 4) {
                             Vector3f vertex = new Vector3f(
                                 Float.parseFloat(tokens[1]),
@@ -33,7 +33,7 @@ public class ObjectLoader {
                             vertices.add(vertex);
                         }
                     }
-                    case "vt" -> { // Texture coordinate
+                    case "vt" -> { 
                         if (tokens.length >= 3) {
                             Vector2f tex = new Vector2f(
                                 Float.parseFloat(tokens[1]),
@@ -42,7 +42,7 @@ public class ObjectLoader {
                             textures.add(tex);
                         }
                     }
-                    case "vn" -> { // Normal
+                    case "vn" -> { 
                         if (tokens.length >= 4) {
                             Vector3f normal = new Vector3f(
                                 Float.parseFloat(tokens[1]),
@@ -52,22 +52,22 @@ public class ObjectLoader {
                             normals.add(normal);
                         }
                     }
-                    case "f" -> { // Face
+                    case "f" -> { 
                         if (tokens.length >= 4) {
                             Face face = new Face();
                             for (int i = 1; i < tokens.length; i++) {
                                 String[] parts = tokens[i].split("/");
                                 FaceVertex fv = new FaceVertex();
                                 
-                                // Vertex index (required)
+                                
                                 fv.vertexIndex = Integer.parseInt(parts[0]) - 1;
                                 
-                                // Texture coordinate index (optional)
+                                
                                 if (parts.length > 1 && !parts[1].isEmpty()) {
                                     fv.textureIndex = Integer.parseInt(parts[1]) - 1;
                                 }
                                 
-                                // Normal index (optional)
+                                
                                 if (parts.length > 2 && !parts[2].isEmpty()) {
                                     fv.normalIndex = Integer.parseInt(parts[2]) - 1;
                                 }

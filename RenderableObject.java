@@ -5,14 +5,14 @@ import org.lwjgl.system.MemoryUtil;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.joml.Matrix4f;
-
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
 import java.util.List;
 
-public class RenderableObject {
+
+
+
+abstract public class RenderableObject {
     protected static final List<String> FILES = Arrays.asList(
         "./src/drones/objects/cube.obj",
         "./src/drones/objects/model.obj",
@@ -25,45 +25,51 @@ public class RenderableObject {
     protected int quadVao;
     protected boolean wasRenderCreated;
     protected Vector3f color;
-    protected boolean usesTexture;
+    protected int usesTexture;
     protected Matrix4f transformation;
     protected float[] vertices;
     protected static int int32_False = 0;
     protected static int int32_True = 1;
+    protected static FrameBuffer FB;
+    private Texture texture;
+    private int TEXTURE_UNIT;
+    public int metallicLighting;
+
     
     
 
     public RenderableObject(ObjectParams params) {
-    	//object = new ObjectLoader();
-    	//File file = new File(params.filename);
-    	//Obj obj = object.loadModel(file);
         this.vertices = ObjectLoader.getObjectData(params.filename, params.hasNormal, params.hasTexture);
-        //debug();
         this.color = new Vector3f(1, 0, 0);
-        this.usesTexture = false;
+        this.usesTexture = int32_False;
+        this.metallicLighting = int32_False;
         createBuffers();
     }
+    
     public void debug() {
     	for(int i = 0; i < Math.min(24, vertices.length); i += 8) {
     	    System.out.println("Vertex " + (i/8) + ": " + 
     	        vertices[i] + ", " + vertices[i+1] + ", " + vertices[i+2]);
     	}
     }
+    
+    abstract public Vector3f getPos();
 
     protected void createBuffers() {
-        // Create and bind VAO
         vao = GL33.glGenVertexArrays();
         GL33.glBindVertexArray(vao);
 
-        // Create and bind VBO
         vbo = GL33.glGenBuffers();
         GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, vbo);
-
-        // Upload data to VBO
         FloatBuffer vertexBuffer = MemoryUtil.memAllocFloat(vertices.length);
         vertexBuffer.put(vertices).flip();
         GL33.glBufferData(GL33.GL_ARRAY_BUFFER, vertexBuffer, GL33.GL_STATIC_DRAW);
         MemoryUtil.memFree(vertexBuffer);
+    }
+    public void setTexture(Texture texture, int texUnit) {
+    	this.usesTexture = int32_True;
+    	this.TEXTURE_UNIT = texUnit;
+    	this.texture = texture;
     }
 
     public void createRenderable() {
@@ -83,7 +89,7 @@ public class RenderableObject {
         
     }
     
-    public void renderDepth(int depthProgram) {
+    public void renderDepth(int depthProgram, Matrix4f perspective, Matrix4f view) {
     	if (!wasRenderCreated) {
             throw new IllegalStateException("Must create renderable first");
         }
@@ -95,6 +101,16 @@ public class RenderableObject {
         int modelLocation = GL33.glGetUniformLocation(depthProgram, "model");
         transformation.get(matrixBuffer);
         GL33.glUniformMatrix4fv(modelLocation, false, matrixBuffer);
+        
+        int perspLocation = GL33.glGetUniformLocation(depthProgram, "perspective");
+        perspective.get(matrixBuffer);
+        GL33.glUniformMatrix4fv(perspLocation, false, matrixBuffer);
+        
+        int viewLocation = GL33.glGetUniformLocation(depthProgram, "view");
+        view.get(matrixBuffer);
+        GL33.glUniformMatrix4fv(viewLocation, false, matrixBuffer);
+        
+        
         GL33.glBindVertexArray(vao);
         GL33.glDrawArrays(GL33.GL_TRIANGLES, 0, vertices.length / 8);
         
@@ -107,11 +123,9 @@ public class RenderableObject {
         
     }
     
-    
-    
-    
 
-    public void render(int shaderProgram, Vector3f eye, Vector4f light, Matrix4f view, Matrix4f perspective) {
+
+    public void render(int shaderProgram, Vector3f eye, Vector4f light, Matrix4f view, Matrix4f perspective, Matrix4f lightViewMatrix) {
         if (!wasRenderCreated) {
             throw new IllegalStateException("Must create renderable first");
         }
@@ -119,7 +133,23 @@ public class RenderableObject {
 
         GL33.glUseProgram(shaderProgram);
         
+        if (usesTexture == int32_True) {
+        	texture.bind(TEXTURE_UNIT);
+        	int mapLocation = GL33.glGetUniformLocation(shaderProgram, "map");
+            GL33.glUniform1i(mapLocation, TEXTURE_UNIT);
+        }
+        
         FloatBuffer matrixBuffer = MemoryUtil.memAllocFloat(16);
+        
+        int lightProjectionLocation = GL33.glGetUniformLocation(shaderProgram, "lightProjectionMatrix");
+        perspective.get(matrixBuffer);
+        GL33.glUniformMatrix4fv(lightProjectionLocation, false, matrixBuffer);
+        
+        int lightViewMatrixLocation = GL33.glGetUniformLocation(shaderProgram, "lightViewMatrix");
+        lightViewMatrix.get(matrixBuffer);
+        GL33.glUniformMatrix4fv(lightViewMatrixLocation, false, matrixBuffer);
+        
+        
 
         int eyeLocation = GL33.glGetUniformLocation(shaderProgram, "eye");
         GL33.glUniform3f(eyeLocation, eye.x, eye.y, eye.z);
@@ -139,14 +169,18 @@ public class RenderableObject {
         GL33.glUniform3f(colorLocation, color.x, color.y, color.z);
 
         int metalLocation = GL33.glGetUniformLocation(shaderProgram, "metal");
-        GL33.glUniform1i(metalLocation, 0);
+        GL33.glUniform1i(metalLocation, this.metallicLighting);
         
         int hasTexture = GL33.glGetUniformLocation(shaderProgram, "hasTexture");
-        GL33.glUniform1i(hasTexture, 0);
+        GL33.glUniform1i(hasTexture, this.usesTexture);
 
         int modelLocation = GL33.glGetUniformLocation(shaderProgram, "model");
         transformation.get(matrixBuffer);
         GL33.glUniformMatrix4fv(modelLocation, false, matrixBuffer);
+        
+        FB.bindTexture();
+        int shadowMapLocation = GL33.glGetUniformLocation(shaderProgram, "depthMap");
+        GL33.glUniform1i(shadowMapLocation, FB.TEXTURE_UNIT);
 
         GL33.glBindVertexArray(vao);
         GL33.glDrawArrays(GL33.GL_TRIANGLES, 0, vertices.length / 8);

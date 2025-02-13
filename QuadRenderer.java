@@ -1,8 +1,5 @@
 package drones;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.*;
-import static org.lwjgl.opengl.GL13.*;
-import static org.lwjgl.opengl.GL14.*;
 import static org.lwjgl.opengl.GL30.*;
 
 public class QuadRenderer {
@@ -44,7 +41,6 @@ public class QuadRenderer {
 	public void render() {
 		glUseProgram(quadShaderProgram);
 		glBindVertexArray(quadVAO);
-
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	}

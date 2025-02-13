@@ -1,51 +1,11 @@
 package drones;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_LINEAR;
-import static org.lwjgl.opengl.GL11.GL_LINEAR_MIPMAP_LINEAR;
-import static org.lwjgl.opengl.GL11.GL_NEAREST;
-import static org.lwjgl.opengl.GL11.GL_NONE;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
-import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glDrawBuffer;
-import static org.lwjgl.opengl.GL11.glGenTextures;
-import static org.lwjgl.opengl.GL11.glReadBuffer;
-import static org.lwjgl.opengl.GL11.glTexImage2D;
-import static org.lwjgl.opengl.GL11.glTexParameteri;
-import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE5;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL30.GL_DEPTH_ATTACHMENT;
-import static org.lwjgl.opengl.GL30.GL_DEPTH_COMPONENT32F;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
-import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_COMPLETE;
 import static org.lwjgl.opengl.GL30.glBindFramebuffer;
-import static org.lwjgl.opengl.GL30.glCheckFramebufferStatus;
-import static org.lwjgl.opengl.GL30.glFramebufferTexture2D;
-import static org.lwjgl.opengl.GL30.glGenFramebuffers;
-import static org.lwjgl.opengl.GL30.glGenerateMipmap;
-import static org.lwjgl.opengl.GL33.glBindSampler;
-import static org.lwjgl.opengl.GL33.glGenSamplers;
-import static org.lwjgl.opengl.GL33.glSamplerParameteri;
-import static org.lwjgl.opengl.GL33.GL_TEXTURE_BORDER_COLOR;
-import static org.lwjgl.opengl.GL33.GL_CLAMP_TO_BORDER;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL45;
 
-import java.nio.FloatBuffer;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.*;
-import static org.lwjgl.opengl.GL13.*;
-import static org.lwjgl.opengl.GL14.*;
-import static org.lwjgl.opengl.GL30.*;
 
 
 import java.nio.ByteBuffer;
@@ -55,8 +15,8 @@ public class FrameBuffer {
     private int fbo;
     private int colorTexture;
     private int depthSampler;
-    private int TEXTURE_UNIT = 1;
-    private static final int shadowMapSize = 1024;
+    protected int TEXTURE_UNIT = 3;
+    protected static final int shadowMapSize = 2048;
 
     public FrameBuffer() {
     	
@@ -102,7 +62,7 @@ public class FrameBuffer {
     }
     
     void bindTexture() {
-    	GL45.glActiveTexture(GL45.GL_TEXTURE1);
+    	GL45.glActiveTexture(GL45.GL_TEXTURE3);
     	GL45.glBindTexture(GL45.GL_TEXTURE_2D, depthTexture);
     	GL45.glBindSampler(TEXTURE_UNIT, depthSampler);
         

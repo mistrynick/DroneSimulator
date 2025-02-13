@@ -7,12 +7,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
-
 import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.glGetError;
-import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
-import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -58,17 +54,6 @@ public class ShaderUtils {
     
     public static int createProgram(String vertexShaderSource, String fragmentShaderSource) {
         
-       
-    	String vertexShaderSource_s = "#version 330 core\n" +
-                "layout(location = 0) in vec3 aPos;\n" +
-                "void main() {\n" +
-                "    gl_Position = vec4(aPos, 1.0);\n" +
-                "}\0";
-    	String fragmentShaderSource_s = "#version 330 core\n" +
-                  "out vec4 FragColor;\n" +
-                  "void main() {\n" +
-                  "    FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n" +
-                  "}\0";
     	int vertexShaderId = createShader(vertexShaderSource, GL20.GL_VERTEX_SHADER);
         int fragmentShaderId = createShader(fragmentShaderSource, GL20.GL_FRAGMENT_SHADER);
 		

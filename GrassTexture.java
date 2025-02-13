@@ -6,9 +6,10 @@ import org.lwjgl.stb.STBImage;
 
 import java.nio.ByteBuffer;
 
-public class GrassTexture {
+public class GrassTexture implements Texture {
     private int textureId;
     private int samplerId;
+    public static final int defaultTextureUnit = 2;
 
     public GrassTexture(String texturePath) {
        
